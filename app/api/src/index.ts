@@ -96,3 +96,71 @@ export class CivicLedgerAPI implements DeployedCivicLedgerAPI {
       amount,
       isDirectAid,
       isAdmin,
+    });
+    try {
+      await this.deployedContract.callTx.commitExpense();
+    } finally {
+      setPendingExpense(null);
+    }
+  }
+
+  async verifyCompliance(): Promise<void> {
+    this.logger?.info('verifyCompliance');
+    await this.deployedContract.callTx.verifyCompliance();
+  }
+
+  async donorDeposit(amount: bigint, restriction: number): Promise<void> {
+    this.logger?.info({ amount, restriction }, 'donorDeposit');
+    // Synthetic coin: nonce is random, color is zero (NIGHT token placeholder).
+    // The wallet's balanceTx handles actual UTXO selection.
+    const coin = {
+      nonce: crypto.getRandomValues(new Uint8Array(32)),
+      color: new Uint8Array(32),
+      value: amount,
+    };
+    await this.deployedContract.callTx.donorDeposit(coin, BigInt(restriction));
+  }
+
+  async releaseFunds(): Promise<void> {
+    this.logger?.info('releaseFunds');
+    await this.deployedContract.callTx.releaseFunds();
+  }
+
+  static async deploy(
+    providers: CivicLedgerProviders,
+    minDirectAid: number,
+    maxAdmin: number,
+    logger?: Logger,
+  ): Promise<CivicLedgerAPI> {
+    logger?.info('deployContract');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const deployed = await (deployContract as any)(providers, {
+      compiledContract: CompiledCivicLedgerContract,
+      privateStateId: CivicLedgerPrivateStateKey,
+      initialPrivateState,
+      args: [BigInt(minDirectAid), BigInt(maxAdmin)],
+    });
+    const contractAddress = deployed.deployTxData.public.contractAddress;
+    const state$ = buildState$(providers, contractAddress);
+    return new CivicLedgerAPI(contractAddress, state$, deployed as DeployedCivicLedgerContract, logger);
+  }
+
+  static async join(
+    providers: CivicLedgerProviders,
+    contractAddress: ContractAddress,
+    logger?: Logger,
+  ): Promise<CivicLedgerAPI> {
+    logger?.info({ contractAddress }, 'joinContract');
+    const deployed = await findDeployedContract<CivicLedgerContract>(providers, {
+      contractAddress,
+      compiledContract: CompiledCivicLedgerContract,
+      privateStateId: CivicLedgerPrivateStateKey,
+      initialPrivateState,
+    });
+    const state$ = buildState$(providers, contractAddress);
+    return new CivicLedgerAPI(contractAddress, state$, deployed, logger);
+  }
+}
+
+export * from './common-types.js';
+
