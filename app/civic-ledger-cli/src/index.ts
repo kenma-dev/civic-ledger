@@ -274,3 +274,98 @@ const buildWallet = async (config: Config, rli: Interface, logger: Logger): Prom
 
 /* **********************************************************************
  * run: the main entry point that starts the whole bulletin board CLI.
+ *
+ * If called with a Docker environment argument, the application
+ * will wait for Docker to be ready before doing anything else.
+ */
+
+export const run = async (config: Config, testEnv: TestEnvironment, logger: Logger): Promise<void> => {
+  const rli = createInterface({ input, output, terminal: true });
+  const providersToBeStopped: MidnightWalletProvider[] = [];
+  try {
+    const envConfiguration = await testEnv.start();
+    logger.info(`Environment started with configuration: ${JSON.stringify(envConfiguration)}`);
+    const seed = await buildWallet(config, rli, logger);
+    if (seed === undefined) {
+      return;
+    }
+    const walletProvider = await MidnightWalletProvider.build(logger, envConfiguration, seed);
+    providersToBeStopped.push(walletProvider);
+    const walletFacade: WalletFacade = walletProvider.wallet;
+
+    await walletProvider.start();
+
+    const unshieldedState = await waitForUnshieldedFunds(
+      logger,
+      walletFacade,
+      envConfiguration,
+      unshieldedToken(),
+      config.requestFaucetTokens,
+    );
+    const nightBalance = unshieldedState.balances[unshieldedToken().raw];
+    if (nightBalance === undefined) {
+      logger.info('No funds received, exiting...');
+      return;
+    }
+    logger.info(`Your NIGHT wallet balance is: ${nightBalance}`);
+
+    if (config.generateDust) {
+      const dustGeneration = await generateDust(logger, seed, unshieldedState, walletFacade);
+      if (dustGeneration) {
+        logger.info(`Submitted dust generation registration transaction: ${dustGeneration}`);
+        await syncWallet(logger, walletFacade);
+      }
+    }
+
+    const zkConfigProvider = new NodeZkConfigProvider<'post' | 'takeDown'>(config.zkConfigPath);
+    const providers: CivicLedgerProviders = {
+      privateStateProvider: levelPrivateStateProvider<PrivateStateId, CivicLedgerPrivateState>({
+        privateStateStoreName: config.privateStateStoreName,
+        signingKeyStoreName: `${config.privateStateStoreName}-signing-keys`,
+        privateStoragePasswordProvider: () => {
+          return 'CivicLedger-Test-2026!';
+        },
+        accountId: seed,
+      }),
+      publicDataProvider: indexerPublicDataProvider(envConfiguration.indexer, envConfiguration.indexerWS),
+      zkConfigProvider: zkConfigProvider,
+      proofProvider: httpClientProofProvider(envConfiguration.proofServer, zkConfigProvider),
+      walletProvider: walletProvider,
+      midnightProvider: walletProvider,
+    };
+    await mainLoop(providers, rli, logger);
+  } catch (e) {
+    logError(logger, e);
+    logger.info('Exiting...');
+  } finally {
+    try {
+      rli.close();
+      rli.removeAllListeners();
+    } catch (e) {
+      logError(logger, e);
+    } finally {
+      try {
+        for (const wallet of providersToBeStopped) {
+          logger.info('Stopping wallet...');
+          await wallet.stop();
+        }
+        if (testEnv) {
+          logger.info('Stopping test environment...');
+          await testEnv.shutdown();
+        }
+      } catch (e) {
+        logError(logger, e);
+      }
+    }
+  }
+};
+
+function logError(logger: Logger, e: unknown) {
+  if (e instanceof Error) {
+    logger.error(`Found error '${e.message}'`);
+    logger.debug(`${e.stack}`);
+  } else {
+    logger.error(`Found error (unknown type)`);
+  }
+}
+
