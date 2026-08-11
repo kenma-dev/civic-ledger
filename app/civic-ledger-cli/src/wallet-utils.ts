@@ -100,3 +100,46 @@ export const waitForUnshieldedFunds = async (
   wallet: WalletFacade,
   env: EnvironmentConfiguration,
   tokenType: UnshieldedTokenType,
+  fundFromFaucet = false,
+  throttleTime = 2_000,
+): Promise<UnshieldedWalletState> => {
+  const initialState = await getInitialUnshieldedState(logger, wallet.unshielded);
+  const unshieldedAddress = UnshieldedAddress.codec.encode(getNetworkId(), initialState.address);
+  logger.info(`Using unshielded address: ${unshieldedAddress.toString()} waiting for funds...`);
+  if (fundFromFaucet && env.faucet) {
+    logger.info('Requesting tokens from faucet...');
+    await new FaucetClient(env.faucet, logger).requestTokens(unshieldedAddress.toString());
+  }
+  const initialBalance = initialState.balances[tokenType.raw];
+  if (initialBalance === undefined || initialBalance === 0n) {
+    logger.info(`Your wallet initial balance is: 0 (not yet initialized)`);
+    logger.info(`Waiting to receive tokens...`);
+    return Rx.firstValueFrom(
+      wallet.state().pipe(
+        Rx.tap((state: FacadeState) => {
+          const balance = state.unshielded.balances[tokenType.raw] ?? 0n;
+          logger.debug(
+            `Wallet funds state emission: { synced=${isFacadeStateSynced(state)}, balance=${balance.toString()} }`,
+          );
+        }),
+        Rx.throttleTime(throttleTime),
+        Rx.filter(
+          (state: FacadeState) => isFacadeStateSynced(state) && (state.unshielded.balances[tokenType.raw] ?? 0n) > 0n,
+        ),
+        Rx.tap(() => logger.info('Sync complete')),
+        Rx.tap((state: FacadeState) => {
+          const shieldedBalances = state.shielded.balances || {};
+          const unshieldedBalances = state.unshielded.balances || {};
+          const dustBalances = state.dust.balance(new Date(Date.now())) || 0n;
+
+          logger.info(
+            `Wallet balances after sync - Shielded: ${JSON.stringify(shieldedBalances)}, Unshielded: ${JSON.stringify(unshieldedBalances)}, Dust: ${dustBalances}`,
+          );
+        }),
+        Rx.map((state: FacadeState) => state.unshielded),
+      ),
+    );
+  }
+  return initialState;
+};
+
