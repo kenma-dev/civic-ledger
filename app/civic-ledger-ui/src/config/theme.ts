@@ -72,3 +72,34 @@ export const theme = createTheme({
       },
     },
     MuiCard: {
+      styleOverrides: {
+        root: {
+          border: '1px solid rgba(23, 32, 51, 0.08)',
+          boxShadow: '0 18px 45px rgba(23, 32, 51, 0.07)',
+          borderRadius: 24,
+          backgroundImage: 'linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,252,247,0.96))',
+          transition: 'transform 0.18s ease, box-shadow 0.18s ease',
+          '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 24px 50px rgba(23, 32, 51, 0.11)' },
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: { fontWeight: 700, fontSize: '0.72rem', letterSpacing: '0.06em' },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            borderRadius: 18,
+            backgroundColor: 'rgba(255,255,255,0.78)',
+            '&.Mui-focused fieldset': { borderColor: moss, borderWidth: 1.5 },
+          },
+          '& .MuiInputLabel-root.Mui-focused': { color: moss },
+        },
+      },
+    },
+  },
+});
+
