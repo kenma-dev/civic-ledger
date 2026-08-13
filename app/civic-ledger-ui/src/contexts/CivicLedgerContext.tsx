@@ -187,3 +187,22 @@ export const CivicLedgerProvider: React.FC<React.PropsWithChildren<{ logger: Log
   const donorDeposit = useCallback((contractAddress: string, amount: bigint, restriction: number) => {
     if (!providersRef.current) return Promise.reject(new Error('Connect a Midnight wallet first.'));
     return runTx(async () => {
+      const api = currentCharity?.info.contractAddress === contractAddress ? currentCharity.api : await joinCharity(contractAddress);
+      await api.donorDeposit(amount, restriction);
+    }, 'Donation transaction failed');
+  }, [currentCharity, joinCharity, runTx]);
+
+  const releaseFunds = useCallback(() => {
+    if (!currentCharity) return Promise.reject(new Error('Connect wallet and load contract first.'));
+    return runTx(() => currentCharity.api.releaseFunds(), 'Release transaction failed');
+  }, [currentCharity, runTx]);
+
+  const value: CivicLedgerContextValue = {
+    walletStatus, walletAddress, connectWallet, disconnectWallet, charities: [DEPLOYED_CHARITY], currentCharity, isCharityOwner,
+    joinCharity, commitExpense, verifyCompliance, donorDeposit, releaseFunds, expenseLog, proofRecord, txPending, error,
+  };
+  return <CivicLedgerContext.Provider value={value}>{children}</CivicLedgerContext.Provider>;
+};
+
+// Browser private state is still local by design; deployment, reads, proofs, and transactions use Midnight preprod.
+
