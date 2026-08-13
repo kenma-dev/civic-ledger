@@ -77,3 +77,4 @@ const Charities: React.FC = () => {
 };
 
 export default Charities;
+
