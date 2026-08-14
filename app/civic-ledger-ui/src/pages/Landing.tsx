@@ -110,3 +110,57 @@ const Landing: React.FC = () => {
               </Box>
               <Button onClick={() => navigate('/charities')}>View all</Button>
             </Box>
+            <Grid container spacing={3}>
+              {preview.map((c) => (
+                <Grid key={c.contractAddress} size={{ xs: 12, md: 4 }}>
+                  <CharityCard charity={c} />
+                </Grid>
+              ))}
+            </Grid>
+          </Container>
+        </Box>
+      )}
+
+      <Box id="how-it-works" sx={{ py: 8 }}>
+        <Container maxWidth="lg">
+          <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Typography variant="h3" sx={{ mb: 1 }}>How it works</Typography>
+              <Typography variant="body2">A short, honest flow from private spending to public proof.</Typography>
+            </Grid>
+            {[
+              {
+                icon: <AccountBalanceIcon color="primary" />,
+                title: 'Charity logs expenses privately',
+                body: 'Each payment is committed on chain without revealing beneficiary names or suppliers.',
+              },
+              {
+                icon: <LockIcon color="secondary" />,
+                title: 'Proof is generated from hidden data',
+                body: 'Threshold checks happen inside the zero-knowledge circuit, not in public view.',
+              },
+              {
+                icon: <VerifiedIcon color="primary" />,
+                title: 'Donors check the result',
+                body: 'The public proof tells the story cleanly: compliant or not, with no leaked detail.',
+              },
+            ].map((step) => (
+              <Grid key={step.title} size={{ xs: 12, md: 4 }}>
+                <Box sx={{ p: 3, borderRadius: 5, bgcolor: 'rgba(255,255,255,0.72)', border: '1px solid rgba(23, 32, 51, 0.08)', height: '100%' }}>
+                  <Box sx={{ width: 48, height: 48, borderRadius: 3, display: 'grid', placeItems: 'center', bgcolor: 'rgba(31, 94, 82, 0.08)', mb: 2 }}>
+                    {step.icon}
+                  </Box>
+                  <Typography variant="h5" sx={{ mb: 1 }}>{step.title}</Typography>
+                  <Typography variant="body2">{step.body}</Typography>
+                </Box>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+    </Box>
+  );
+};
+
+export default Landing;
+
