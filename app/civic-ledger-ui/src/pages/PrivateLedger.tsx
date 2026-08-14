@@ -164,3 +164,62 @@ const PrivateLedger: React.FC = () => {
                       {i > 0 && <Divider sx={{ my: 0.5 }} />}
                       <Box sx={{ display: 'grid', gridTemplateColumns: '80px 100px 1fr 80px 180px', gap: 1, px: 1.5, py: 1.25, alignItems: 'center' }}>
                         <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>{e.id}</Typography>
+                        <Box>
+                          <Typography variant="body2" sx={{ fontWeight: 700 }}>£{Number(e.amount).toLocaleString()}</Typography>
+                          <Typography variant="caption" sx={{ color: '#9CA3AF' }}>{pct}% of total</Typography>
+                        </Box>
+                        <Chip label={e.category} size="small" sx={{ bgcolor: colors.bg, color: colors.color, fontWeight: 600, width: 'fit-content', fontSize: '0.75rem' }} />
+                        <Typography variant="caption" sx={{ fontWeight: 600, color: typeColor }}>{type}</Typography>
+                        <HashCell hash={e.commitmentHash} />
+                      </Box>
+                    </Box>
+                  );
+                })}
+
+                {/* Totals row */}
+                <Divider sx={{ mt: 1.5, mb: 1 }} />
+                <Box sx={{ display: 'grid', gridTemplateColumns: '80px 100px 1fr 80px 180px', gap: 1, px: 1.5, py: 1, bgcolor: '#F9FAFB', borderRadius: 1 }}>
+                  <Typography variant="caption" sx={{ fontWeight: 700, color: '#374151' }}>TOTAL</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                    £{expenseLog.reduce((s, e) => s + Number(e.amount), 0).toLocaleString()}
+                  </Typography>
+                  <Box />
+                  <Box />
+                  <Typography variant="caption" sx={{ color: '#9CA3AF', fontSize: '0.7rem' }}>
+                    {expenseLog.length} commitment{expenseLog.length !== 1 ? 's' : ''} on-chain
+                  </Typography>
+                </Box>
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* How it works */}
+        <Card sx={{ mt: 3, bgcolor: '#FAFAF8' }}>
+          <CardContent sx={{ p: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>How the ZK commitment chain works</Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              {[
+                ['1. You log an expense privately', 'Amount, category, and supplier never leave your browser. A commitment hash — cryptographic fingerprint — is computed locally.'],
+                ['2. The commitment goes on-chain', 'Only the hash is submitted. Aggregate running totals (totalSpend, directAidSpend) update atomically. No individual amounts are visible.'],
+                ['3. You run verifyCompliance()', 'A ZK proof is generated that proves: "the sum of all committed expenses satisfies the declared thresholds" — without revealing which expense is which.'],
+                ['4. Donors verify the proof', 'Anyone can check that the on-chain proof is valid using public verifier keys. They know the percentages are correct without knowing individual expenses.'],
+              ].map(([title, desc]) => (
+                <Box key={title} sx={{ display: 'flex', gap: 2 }}>
+                  <Box sx={{ width: 6, bgcolor: '#1B4332', borderRadius: 1, flexShrink: 0, mt: 0.5 }} />
+                  <Box>
+                    <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.25 }}>{title}</Typography>
+                    <Typography variant="body2" sx={{ color: '#6B7280', lineHeight: 1.6 }}>{desc}</Typography>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          </CardContent>
+        </Card>
+      </Container>
+    </Box>
+  );
+};
+
+export default PrivateLedger;
+
