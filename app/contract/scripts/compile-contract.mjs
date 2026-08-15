@@ -23,3 +23,39 @@ function run(command, args) {
     shell: true,
     stdio: 'inherit',
   });
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  if (result.status !== 0) {
+    process.exit(result.status ?? 1);
+  }
+}
+
+if (process.platform === 'win32') {
+  const wslPackageDir = toWslPath(packageDir);
+  const bashCommand = [
+    `cd '${wslPackageDir}'`,
+    `compact compile src/donor-proof.compact src/managed/donor-proof`,
+  ].join(' && ');
+
+  const result = spawnSync('wsl', ['bash', '-lc', bashCommand], {
+    cwd: packageDir,
+    env,
+    shell: false,
+    stdio: 'inherit',
+  });
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  if (result.status !== 0) {
+    process.exit(result.status ?? 1);
+  }
+} else {
+  run('npm', ['exec', 'fetch-compactc', '--', `--version=${compactVersion}`]);
+  run('npm', ['exec', 'run-compactc', '--', 'src/donor-proof.compact', './src/managed/donor-proof']);
+}
+
