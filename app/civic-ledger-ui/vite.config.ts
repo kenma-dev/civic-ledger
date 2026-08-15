@@ -8,3 +8,110 @@
 // http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import { defineConfig } from 'vite';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import react from '@vitejs/plugin-react';
+import wasm from 'vite-plugin-wasm';
+import topLevelAwait from 'vite-plugin-top-level-await';
+// import { nodePolyfills } from 'vite-plugin-node-polyfills';
+
+const repoRoot = resolve(fileURLToPath(new URL('..', import.meta.url)));
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  cacheDir: './.vite',
+  build: {
+    target: 'esnext',
+    minify: false,
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          // Separate chunk for WASM modules to avoid top-level await issues
+          if (id.includes('onchain-runtime-v3')) return 'wasm';
+        },
+      },
+      },
+    commonjsOptions: {
+      // Transform CommonJS to ESM more aggressively
+      transformMixedEsModules: true,
+      extensions: ['.js', '.cjs'],
+      // Needed for Node.js modules
+      ignoreDynamicRequires: true,
+    },
+  },
+  define: {
+    __CIVIC_LEDGER_MANAGED_DIR__: JSON.stringify(resolve(repoRoot, 'contract/src/managed/donor-proof')),
+  },
+  server: {
+    fs: {
+      allow: [repoRoot],
+    },
+  },
+  plugins: [
+    react(),
+    // Configure WASM plugin with more options
+    wasm(),
+    topLevelAwait({
+      // Be more permissive with top-level await
+      promiseExportName: '__tla',
+      promiseImportName: (i) => `__tla_${i}`,
+    }),
+    // Custom resolver for handling problematic modules
+    {
+      name: 'wasm-module-resolver',
+      resolveId(source, importer) {
+        // Special handling for the problematic module
+        if (
+          source === '@midnight-ntwrk/onchain-runtime-v3' &&
+          importer &&
+          importer.includes('@midnight-ntwrk/compact-runtime')
+        ) {
+          // Force dynamic import for this case
+          return {
+            id: source,
+            external: false,
+            moduleSideEffects: true,
+          };
+        }
+        return null;
+      },
+    },
+  ],
+  optimizeDeps: {
+    rolldownOptions: {
+      target: 'esnext',
+      supported: { 'top-level-await': true },
+      // Configure ESBuild to handle Node.js-style modules
+      platform: 'browser',
+      format: 'esm',
+      loader: {
+        '.wasm': 'binary',
+      },
+    },
+    // Explicitly include these packages for pre-bundling, but force ESM
+    include: ['@midnight-ntwrk/compact-runtime'],
+    // Exclude WASM files and modules with top-level await from optimization
+    exclude: [
+      '@midnight-ntwrk/onchain-runtime-v3',
+      '@midnight-ntwrk/onchain-runtime-v3/midnight_onchain_runtime_wasm_bg.wasm',
+      '@midnight-ntwrk/onchain-runtime-v3/midnight_onchain_runtime_wasm.js',
+    ],
+  },
+  checks: {
+    importIsUndefined: false,
+    pluginTimings: false,
+  },
+  // Add specific import configuration for more control
+  resolve: {
+    // Ensure WASM files are loaded properly
+    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.wasm'],
+    mainFields: ['browser', 'module', 'main'],
+  },
+});
+
