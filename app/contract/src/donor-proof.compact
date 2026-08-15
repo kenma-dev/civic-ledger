@@ -121,3 +121,36 @@ export circuit donorDeposit(coin: ShieldedCoinInfo, restriction: Uint<8>): [] {
     );
   } else {
     pot.writeCoin(disclose(coin), right<ZswapCoinPublicKey, ContractAddress>(kernel.self()));
+    potHasCoin = true;
+  }
+
+  const donor = disclose(ownPublicKey());
+
+  donorRestrictions.insert(donor, disclose(restriction));
+
+  const depositValue = disclose(coin.value);
+  const previousTotal =
+          donorTotalDeposits.member(donor) ? donorTotalDeposits.lookup(donor) : 0 as Uint<128>;
+  donorTotalDeposits.insert(donor, (previousTotal + depositValue) as Uint<128>);
+}
+
+export circuit releaseFunds(): [] {
+  assertOnlyOwner();
+  assert(isVerified, "compliance not yet verified");
+  assert(potHasCoin, "no funds to release");
+
+  const releaseAmount = pot.value;
+
+  const result = sendShielded(
+                   pot,
+                   left<ZswapCoinPublicKey, ContractAddress>(campaignOwner),
+                   releaseAmount
+                 );
+
+  if (disclose(result.change.is_some)) {
+    pot.writeCoin(result.change.value, right<ZswapCoinPublicKey, ContractAddress>(kernel.self()));
+  } else {
+    potHasCoin = false;
+  }
+}
+
