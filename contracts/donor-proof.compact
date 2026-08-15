@@ -1,0 +1,106 @@
+pragma language_version >= 0.23;
+
+import CompactStandardLibrary;
+
+// ---------------------------------------------------------------------------
+// CivicLedger — Privacy-preserving charity compliance.
+//
+// Privacy model:
+//   - Expense amounts are disclosed (visible as per-call deltas on totalSpend).
+//   - Expense IDs and blinding factors are never disclosed; only their hashes
+//     appear on-chain via the commitment and nullifier.
+//   - The category flags (isDirectAid, isAdmin) are disclosed so the running
+//     category totals can be updated publicly.
+//
+// Tamper-evidence model:
+//   - Each commitExpense() call produces an on-chain commitment and extends
+//     expenseChainHash. The chain makes expense history append-only: inserting
+//     a retroactive expense would require changing every subsequent chain hash,
+//     which is immutable on-chain.
+//   - Nullifiers stored in expenseNullifiers prevent the same expense from
+//     being committed twice.
+//   - expenseSequence provides a monotonically increasing ordering anchor.
+//
+// Donation model (Zswap shielded coins):
+//   - donorDeposit() lets any donor lock a shielded NIGHT (or other shielded)
+//     coin into the contract along with a category restriction byte
+//     (0 = unrestricted, 1 = food, 2 = medical, 3 = housing).
+//   - All deposits are merged into a single pooled coin held by the contract
+//     (the "pot"), following the Treasury / Pot pattern.
+//   - Per-donor restriction and cumulative deposited amount are recorded so
+//     verifyCompliance / off-chain auditors can later prove the spend mix
+//     respected donor restrictions.
+//   - releaseFunds() lets the campaignOwner withdraw the full pooled balance
+//     to themselves once isVerified == true.
+//
+// Privacy trade-offs in the donation flow:
+//   - The pot's value (current total holdings) is visible on-chain because
+//     QualifiedShieldedCoinInfo.value is a public field.
+//   - Each donor's ZswapCoinPublicKey (ownPublicKey() at deposit time) is
+//     disclosed so we can record the per-donor restriction. The contract
+//     therefore reveals the *set of donors*, not just their aggregate.
+//   - The restriction byte is a circuit parameter and is public by definition.
+//   - The donated *coin value* is also visible per-deposit because we update
+//     a per-donor cumulative total. This matches the existing aggregation-
+//     leak in commitExpense(); the contract does not aim to hide amounts.
+// ---------------------------------------------------------------------------
+
+// --- Public ledger state ----------------------------------------------------
+
+// Sealed: written once in the constructor, immutable thereafter.
+export sealed ledger campaignOwner: ZswapCoinPublicKey;
+
+export sealed ledger directAidThreshold: Uint<8>;
+
+export sealed ledger adminThreshold: Uint<8>;
+
+// Running totals — updated on each commitExpense().
+export ledger totalSpend: Uint<64>;
+
+export ledger directAidSpend: Uint<64>;
+
+export ledger adminSpend: Uint<64>;
+
+// Commitment chain — extends with each expense; proves append-only history.
+export ledger expenseChainHash: Bytes<32>;
+
+// Nullifier set — prevents double-submission of the same expense.
+export ledger expenseNullifiers: Set<Bytes<32>>;
+
+// Monotonically increasing counter — ordering proof.
+export ledger expenseSequence: Counter;
+
+// Compliance proof flag — set by verifyCompliance().
+export ledger isVerified: Boolean;
+
+// --- Donation pot (Zswap shielded coin pool) --------------------------------
+
+// The accumulated shielded coin held by the contract on behalf of all donors.
+// First deposit initialises it via writeCoin; subsequent deposits merge into
+// it via mergeCoinImmediate. The Boolean flag tracks whether the pot has been
+// initialised yet (a default QualifiedShieldedCoinInfo has all-zero fields
+// which is not the same as "no coin held").
+export ledger pot: QualifiedShieldedCoinInfo;
+
+export ledger potHasCoin: Boolean;
+
+// Per-donor cumulative shielded deposits (in coin atomic units).
+// Key:   donor's ZswapCoinPublicKey at deposit time.
+// Value: sum of donated coin values across all of this donor's deposits.
+export ledger donorTotalDeposits: Map<ZswapCoinPublicKey, Uint<128>>;
+
+// Per-donor restriction byte (0 = unrestricted, 1 = food, 2 = medical,
+// 3 = housing). A donor that calls donorDeposit() more than once with
+// different restrictions will have the most recent value retained;
+// changing restriction mid-campaign is a deliberate UX choice that we
+// surface to off-chain auditors via the donor's update history.
+export ledger donorRestrictions: Map<ZswapCoinPublicKey, Uint<8>>;
+
+// --- Witnesses --------------------------------------------------------------
+
+// Expense identity and blinding — private, never disclosed.
+witness expenseId(): Bytes<32>;
+
+witness expenseBlind(): Bytes<32>;
+
+// Expense details — amount disclosed to update totals; categories disclosed
