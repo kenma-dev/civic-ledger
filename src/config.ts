@@ -53,3 +53,6 @@ export function getConfig(): NetworkConfig {
       throw new Error(
         `Unknown network: "${network}". Set MIDNIGHT_NETWORK to local, preprod, or preview.`,
       );
+  }
+}
+
