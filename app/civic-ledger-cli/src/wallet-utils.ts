@@ -142,4 +142,3 @@ export const waitForUnshieldedFunds = async (
   }
   return initialState;
 };
-

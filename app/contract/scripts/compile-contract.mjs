@@ -58,4 +58,3 @@ if (process.platform === 'win32') {
   run('npm', ['exec', 'fetch-compactc', '--', `--version=${compactVersion}`]);
   run('npm', ['exec', 'run-compactc', '--', 'src/donor-proof.compact', './src/managed/donor-proof']);
 }
-

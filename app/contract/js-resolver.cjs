@@ -33,4 +33,3 @@ const jsResolver = (path, options) => {
 };
 
 module.exports = jsResolver;
-

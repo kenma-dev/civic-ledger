@@ -21,4 +21,3 @@ const config = new StandaloneConfig();
 const logger = await createLogger(config.logDir);
 const testEnvironment = config.getEnvironment(logger);
 await run(config, testEnvironment, logger);
-

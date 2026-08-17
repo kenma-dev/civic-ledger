@@ -36,4 +36,3 @@ export function buildProviders(
     midnightProvider: wallet,
   };
 }
-

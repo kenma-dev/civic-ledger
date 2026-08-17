@@ -82,4 +82,3 @@ export const TextPromptDialog: React.FC<Readonly<TextPromptDialogProps>> = ({ pr
     </Dialog>
   );
 };
-

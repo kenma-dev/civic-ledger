@@ -15,4 +15,3 @@ export const CompiledCivicLedgerContract = CompiledContract.make<
   CompiledContract.withWitnesses(Witnesses.witnesses),
   CompiledContract.withCompiledFileAssets("./managed/donor-proof"),
 );
-

@@ -65,4 +65,3 @@ export class CivicLedgerSimulator {
     return this.getLedger();
   }
 }
-

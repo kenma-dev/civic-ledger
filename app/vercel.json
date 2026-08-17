@@ -1,0 +1,6 @@
+{
+  "buildCommand": "npm --prefix civic-ledger-ui run build",
+  "outputDirectory": "civic-ledger-ui/dist",
+  "installCommand": "npm install --include=optional --force",
+  "framework": "vite"
+}

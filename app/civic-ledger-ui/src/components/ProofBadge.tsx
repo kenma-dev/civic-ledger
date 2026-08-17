@@ -23,4 +23,3 @@ const ProofBadge: React.FC<Props> = ({ verified, size = 'small' }) =>
   );
 
 export default ProofBadge;
-

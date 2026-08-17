@@ -140,4 +140,3 @@ const RunProof: React.FC = () => {
 };
 
 export default RunProof;
-

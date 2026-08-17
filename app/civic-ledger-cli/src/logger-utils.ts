@@ -40,4 +40,3 @@ export const createLogger = async (logPath: string): Promise<pino.Logger> => {
     ]),
   );
 };
-

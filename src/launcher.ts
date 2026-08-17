@@ -78,4 +78,3 @@ function loadAddress(): string | undefined {
     return undefined;
   }
 }
-

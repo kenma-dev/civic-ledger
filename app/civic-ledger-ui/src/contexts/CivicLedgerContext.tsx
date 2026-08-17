@@ -205,4 +205,3 @@ export const CivicLedgerProvider: React.FC<React.PropsWithChildren<{ logger: Log
 };
 
 // Browser private state is still local by design; deployment, reads, proofs, and transactions use Midnight preprod.
-

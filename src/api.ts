@@ -169,4 +169,3 @@ export class CivicLedgerAPI {
     return tx.public.txHash as string;
   }
 }
-

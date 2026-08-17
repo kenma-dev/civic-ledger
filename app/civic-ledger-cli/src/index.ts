@@ -368,4 +368,3 @@ function logError(logger: Logger, e: unknown) {
     logger.error(`Found error (unknown type)`);
   }
 }
-

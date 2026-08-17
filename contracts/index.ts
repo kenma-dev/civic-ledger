@@ -22,4 +22,3 @@ export function createCompiledContract<PS>(witnesses: Witnesses<PS>) {
     CompiledContract.withCompiledFileAssets(zkConfigPath),
   );
 }
-

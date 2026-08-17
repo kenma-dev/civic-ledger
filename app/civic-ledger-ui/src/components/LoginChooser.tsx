@@ -25,4 +25,3 @@ const LoginChooser: React.FC = () => {
 };
 
 export default LoginChooser;
-

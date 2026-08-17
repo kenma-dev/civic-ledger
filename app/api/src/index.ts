@@ -163,4 +163,3 @@ export class CivicLedgerAPI implements DeployedCivicLedgerAPI {
 }
 
 export * from './common-types.js';
-

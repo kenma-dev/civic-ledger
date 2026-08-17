@@ -222,4 +222,3 @@ const PrivateLedger: React.FC = () => {
 };
 
 export default PrivateLedger;
-

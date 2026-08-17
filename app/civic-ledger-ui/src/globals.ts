@@ -30,4 +30,3 @@ globalThis.process = {
 // We'll also make use of `Buffer` objects, so we'll ensure a pollyfill for one is
 // present on the global object.
 globalThis.Buffer = Buffer;
-

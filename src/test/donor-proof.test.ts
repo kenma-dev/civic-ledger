@@ -143,3 +143,64 @@ describe('CivicLedger Contract', () => {
       privateStateId: ALICE_PRIVATE_STATE_ID,
       circuitId: 'commitExpense',
       args: [],
+    });
+
+    const state = await queryLedger(aliceProviders);
+    expect(state.totalSpend).toEqual(1350n);
+    expect(state.directAidSpend).toEqual(1350n);
+    expect(state.expenseSequence).toEqual(2n);
+    logger.info(`Expense 2 committed. totalSpend=${state.totalSpend}, directAid=${state.directAidSpend}`);
+  }, 120_000);
+
+  it('commits an admin expense (private: £150)', async () => {
+    const compiled = createCompiledContract(makeWitnesses({
+      expenseId: newExpenseId(),
+      blindingFactor: newBlindingFactor(),
+      amount: 150n,
+      isDirectAid: false,
+      isAdmin: true,
+    }));
+
+    await (submitCallTx as any)(aliceProviders, {
+      compiledContract: compiled,
+      contractAddress,
+      privateStateId: ALICE_PRIVATE_STATE_ID,
+      circuitId: 'commitExpense',
+      args: [],
+    });
+
+    const state = await queryLedger(aliceProviders);
+    expect(state.totalSpend).toEqual(1500n);
+    expect(state.directAidSpend).toEqual(1350n);
+    expect(state.adminSpend).toEqual(150n);
+    expect(state.expenseSequence).toEqual(3n);
+    logger.info(`Expense 3 committed. totalSpend=${state.totalSpend}, admin=${state.adminSpend}`);
+  }, 120_000);
+
+  it('verifies compliance — directAid 90%, admin 10%', async () => {
+    const compiled = createCompiledContract(makeWitnesses());
+
+    await (submitCallTx as any)(aliceProviders, {
+      compiledContract: compiled,
+      contractAddress,
+      privateStateId: ALICE_PRIVATE_STATE_ID,
+      circuitId: 'verifyCompliance',
+      args: [],
+    });
+
+    const state = await queryLedger(aliceProviders);
+    expect(state.isVerified).toEqual(true);
+
+    // Compute percentages off-chain from public totals (Compact has no division).
+    const directAidPct = Number(state.directAidSpend * 100n / state.totalSpend);
+    const adminPct = Number(state.adminSpend * 100n / state.totalSpend);
+
+    expect(directAidPct).toBeGreaterThanOrEqual(Number(MIN_DIRECT_AID_PCT));
+    expect(adminPct).toBeLessThanOrEqual(Number(MAX_ADMIN_PCT));
+
+    logger.info(
+      `Compliance verified. directAid=${directAidPct}% (>=${MIN_DIRECT_AID_PCT}%), ` +
+      `admin=${adminPct}% (<=${MAX_ADMIN_PCT}%)`
+    );
+  }, 120_000);
+});

@@ -36,4 +36,3 @@ const SpendBar: React.FC<Props> = ({ directAidPct, adminPct, height = 8 }) => {
 };
 
 export default SpendBar;
-

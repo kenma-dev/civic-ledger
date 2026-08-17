@@ -244,4 +244,3 @@ const CampaignPage: React.FC = () => {
 };
 
 export default CampaignPage;
-

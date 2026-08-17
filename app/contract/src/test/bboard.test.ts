@@ -138,4 +138,3 @@ describe('CivicLedger Compact circuits', () => {
     expect(state.isVerified).toBe(true);
   });
 });
-

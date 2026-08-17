@@ -18,4 +18,3 @@ import Long from 'long';
 
 protobuf.util.Long = Long;
 protobuf.configure();
-

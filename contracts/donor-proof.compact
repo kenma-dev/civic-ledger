@@ -291,4 +291,3 @@ export circuit releaseFunds(): [] {
     potHasCoin = false;
   }
 }
-

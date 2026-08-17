@@ -30,4 +30,3 @@ export const randomBytes = (length: number): Uint8Array => {
   crypto.getRandomValues(bytes);
   return bytes;
 };
-

@@ -1,0 +1,30 @@
+name: CivicLedger CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - name: Set up Compact
+        uses: midnightntwrk/setup-compact-action@v1
+      - name: Install workspace dependencies
+        run: npm ci --prefix app --legacy-peer-deps
+      - name: Compile contract
+        run: npm --prefix app run compact --workspace @midnight-ntwrk/civic-ledger-contract
+      - name: Test contract
+        run: npm --prefix app run test --workspace @midnight-ntwrk/civic-ledger-contract -- --run
+      - name: Typecheck UI
+        run: npm --prefix app run typecheck --workspace @midnight-ntwrk/civic-ledger-ui

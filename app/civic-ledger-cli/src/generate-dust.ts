@@ -78,4 +78,3 @@ export const generateDust = async (
 
   return txId;
 };
-

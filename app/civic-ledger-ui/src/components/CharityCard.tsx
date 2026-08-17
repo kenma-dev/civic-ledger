@@ -84,4 +84,3 @@ const CharityCard: React.FC<Props> = ({ charity }) => {
 };
 
 export default CharityCard;
-

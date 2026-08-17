@@ -45,4 +45,3 @@ export type CivicLedgerLedgerState = {
   readonly potHasCoin: boolean;
   readonly potValue: bigint;
 };
-

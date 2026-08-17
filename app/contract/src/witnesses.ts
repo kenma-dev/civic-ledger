@@ -48,4 +48,3 @@ export const witnesses = {
   expenseIsAdmin: ({ privateState }: WitnessContext<Ledger, CivicLedgerPrivateState>): [CivicLedgerPrivateState, boolean] =>
     [privateState, _pendingExpense?.isAdmin ?? false],
 };
-
