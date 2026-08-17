@@ -19,7 +19,9 @@ jobs:
           cache: npm
           cache-dependency-path: app/package-lock.json
       - name: Set up Compact
-        uses: midnightntwrk/setup-compact-action@v1
+        uses: midnightntwrk/setup-compact-action@836895c8fffbbea6bd986af2b17e8941ff29d1f  # compact toolchain setup
+        with:
+          compact-version: '0.30.0'
       - name: Install workspace dependencies
         run: npm ci --prefix app --legacy-peer-deps
       - name: Compile contract
