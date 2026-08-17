@@ -56,3 +56,26 @@ export async function launch(opts: LaunchOptions): Promise<LaunchResult> {
     saveAddress(api.contractAddress as unknown as string);
     logger.info({ message: 'Contract deployed', address: api.contractAddress });
   } else {
+    const address = opts.contractAddress ?? loadAddress();
+    if (!address) throw new Error('No contract address. Run deploy first.');
+    api = await CivicLedgerAPI.findDeployed(providers, address as unknown as ContractAddress, logger);
+    logger.info({ message: 'Connected to existing contract', address });
+  }
+
+  return { api, wallet };
+}
+
+function saveAddress(address: string): void {
+  writeFileSync(ADDRESS_FILE, JSON.stringify({ address }, null, 2));
+}
+
+function loadAddress(): string | undefined {
+  if (!existsSync(ADDRESS_FILE)) return undefined;
+  try {
+    const data = JSON.parse(readFileSync(ADDRESS_FILE, 'utf-8')) as { address?: string };
+    return data.address;
+  } catch {
+    return undefined;
+  }
+}
+
