@@ -6,7 +6,7 @@ export default defineConfig({
     globals: true,
     testTimeout: 10 * 60_000,
     hookTimeout: 15 * 60_000,
-    include: ['src/test/**/*.test.ts'],
+    include: ['test/**/*.test.ts'],
     reporters: ['default'],
     sequence: { concurrent: false },
   },

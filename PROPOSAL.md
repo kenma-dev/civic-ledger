@@ -139,3 +139,10 @@ This is an honest scope. It is also a stronger guarantee than any annual report,
 ```
 
 The donor checks the proof. The proof passed. Their money went where they said it should go.
+
+---
+
+## Level 6 Mainnet Feasibility
+
+CivicLedger is scoped and designed to be fully feasible for deployment on Midnight Mainnet by Level 6. The core primitives—zero-knowledge state transitions, public/private state partitioning, and shielded token interactions (Zswap)—are implemented using the existing Midnight Compact and Midnight.js features. The architecture intentionally avoids complex multi-party computation or unproven cryptographic primitives in favor of standard ZK commit-and-reveal patterns which are natively supported by the Midnight network. The contract logic is efficient enough to fit within expected block limits, and the frontend wallet integration uses the official Lace/Midnight SDKs. Given the current maturity of the prototype and its alignment with Midnight's capabilities, finalizing the product for mainnet will primarily involve UI polish, rigorous security auditing, and deployment rather than solving outstanding research problems.
+

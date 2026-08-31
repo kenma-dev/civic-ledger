@@ -23,7 +23,7 @@ jobs:
       - run: echo "$HOME/.local/bin" >> "$GITHUB_PATH"
       - run: compact update 0.30 || true
       - run: npm ci || npm install
-      - run: npm run compile-contracts || true
+      - run: npm run compile:contract
 
   node-verification:
     name: 2 · Test Node integration
@@ -36,7 +36,7 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci || npm install
-      - run: npm test || true
+      - run: npm test
       - run: npm run build || true
 
   ui-verification:
@@ -51,5 +51,5 @@ jobs:
       - run: |
           if [ -d "ui" ]; then
             npm --prefix ui ci || npm --prefix ui install
-            npm --prefix ui run build || true
+            npm --prefix ui run build
           fi

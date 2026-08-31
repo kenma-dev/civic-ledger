@@ -9,11 +9,11 @@ import type { ContractAddress } from '@midnight-ntwrk/compact-runtime';
 import pino from 'pino';
 import type { EnvironmentConfiguration } from '@midnight-ntwrk/testkit-js';
 
-import { getConfig } from '../config.js';
-import { buildProviders, type CivicLedgerProviders } from '../providers.js';
-import { MidnightWalletProvider, syncWallet } from '../wallet.js';
-import { ledger, zkConfigPath, createCompiledContract } from '../../contracts/index.js';
-import { makeWitnesses, initialPrivateState, newExpenseId, newBlindingFactor } from '../witnesses.js';
+import { getConfig } from '../src/config.js';
+import { buildProviders, type CivicLedgerProviders } from '../src/providers.js';
+import { MidnightWalletProvider, syncWallet } from '../src/wallet.js';
+import { ledger, zkConfigPath, createCompiledContract } from '../contracts/index.js';
+import { makeWitnesses, initialPrivateState, newExpenseId, newBlindingFactor } from '../src/witnesses.js';
 
 // Required for GraphQL subscriptions in Node.js.
 // @ts-expect-error WebSocket global assignment for apollo

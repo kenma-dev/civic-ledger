@@ -36,17 +36,17 @@ Charities often need to demonstrate that restricted funds were used for the inte
 ### 1. Compact Contract Compilation Output
 `compact compile` successfully builds circuits and generates managed artifacts (`.zkir`, `proving.key`, `verification.key`):
 
-![Successful Compile Output](docs/images/compile_output.jpg)
+![Successful Compile Output](https://raw.githubusercontent.com/Adrija05/civic-ledger/main/docs/images/compile_output.jpg)
 
 ### 2. Verified Contract Deployment on Midnight Preprod
 Contract deployed to Midnight Preprod with verifiable contract address (`0x02d99211a774b99812984e098712399c719e`):
 
-![Contract Deployed](docs/images/contract_deployed.jpg)
+![Contract Deployed](https://raw.githubusercontent.com/Adrija05/civic-ledger/main/docs/images/contract_deployed.jpg)
 
 ### 3. Test Suite Execution (5/5 Passing Tests)
 Automated unit & integration test suite validating zero-knowledge proof generation, restriction commitments, and proof verification:
 
-![Test Output](docs/images/test_output.jpg)
+![Test Output](https://raw.githubusercontent.com/Adrija05/civic-ledger/main/docs/images/test_output.jpg)
 
 ---
 

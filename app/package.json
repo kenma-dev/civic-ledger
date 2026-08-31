@@ -13,7 +13,6 @@
   "workspaces": {
     "packages": [
       "civic-ledger-cli",
-      "civic-ledger-ui",
       "api",
       "contract"
     ]

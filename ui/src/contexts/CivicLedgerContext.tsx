@@ -7,7 +7,7 @@ import { fromHex, toHex } from '@midnight-ntwrk/compact-runtime';
 import { Binding, FinalizedTransaction, Proof, SignatureEnabled, Transaction, TransactionId } from '@midnight-ntwrk/ledger-v8';
 import { type UnboundTransaction } from '@midnight-ntwrk/midnight-js-types';
 import { type NetworkId } from '@midnight-ntwrk/midnight-js-network-id';
-import { CivicLedgerAPI, type DeployedCivicLedgerAPI, type CivicLedgerState, type CharityInfo, type CivicLedgerCircuitKeys, type CivicLedgerPrivateState } from '../../../api/src/index.js';
+import { CivicLedgerAPI, type DeployedCivicLedgerAPI, type CivicLedgerState, type CharityInfo, type CivicLedgerCircuitKeys, type CivicLedgerPrivateState } from '../../../app/api/src/index.js';
 import { firstValueFrom, interval, map, filter, take, timeout, throwError, concatMap, catchError } from 'rxjs';
 import semver from 'semver';
 import { pipe as fnPipe } from 'fp-ts/function';
