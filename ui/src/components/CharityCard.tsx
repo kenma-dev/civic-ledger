@@ -6,8 +6,8 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ProofBadge from './ProofBadge';
 import SpendBar from './SpendBar';
 import { useCivicLedger } from '../contexts';
-import { type CivicLedgerState } from '../../../api/src/index.js';
-import { type CharityInfo } from '../../../api/src/common-types.js';
+import { type CivicLedgerState } from '../../../app/api/src/index.js';
+import { type CharityInfo } from '../../../app/api/src/common-types.js';
 
 type Props = { charity: CharityInfo };
 

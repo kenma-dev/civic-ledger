@@ -20,7 +20,7 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useCivicLedger } from '../contexts';
-import { type DeployedCivicLedgerAPI, type CivicLedgerState } from '../../../api/src/index.js';
+import { type DeployedCivicLedgerAPI, type CivicLedgerState } from '../../../app/api/src/index.js';
 import ProofBadge from '../components/ProofBadge';
 import SpendBar from '../components/SpendBar';
 

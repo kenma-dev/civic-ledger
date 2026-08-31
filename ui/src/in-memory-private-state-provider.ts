@@ -38,7 +38,7 @@ export const inMemoryPrivateStateProvider = <PSI extends PrivateStateId, PS = un
   PS
 > => {
   const privateStates = new Map<ContractAddress, Map<PSI, PS>>();
-  const signingKeys = new Map<ContractAddress, SigningKey>();
+  const signingKeys = new Map<ContractAddress, string>();
   let contractAddress: ContractAddress | null = null;
 
   const requireContractAddress = (): ContractAddress => {
@@ -114,16 +114,16 @@ export const inMemoryPrivateStateProvider = <PSI extends PrivateStateId, PS = un
      * @param {SigningKey} signingKey - The signing key to set.
      * @returns {Promise<void>} A promise that resolves when the signing key is set.
      */
-    setSigningKey(contractAddress: ContractAddress, signingKey: SigningKey): Promise<void> {
+    setSigningKey(contractAddress: ContractAddress, signingKey: string): Promise<void> {
       signingKeys.set(contractAddress, signingKey);
       return Promise.resolve();
     },
     /**
      * Gets the signing key for a given contract address.
      * @param {ContractAddress} contractAddress - The contract address.
-     * @returns {Promise<SigningKey | null>} A promise that resolves to the signing key or null if not found.
+     * @returns {Promise<string | null>} A promise that resolves to the signing key or null if not found.
      */
-    getSigningKey(contractAddress: ContractAddress): Promise<SigningKey | null> {
+    getSigningKey(contractAddress: ContractAddress): Promise<string | null> {
       const value = signingKeys.get(contractAddress) ?? null;
       return Promise.resolve(value);
     },
