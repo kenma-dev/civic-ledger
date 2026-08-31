@@ -18,7 +18,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
 import wasm from 'vite-plugin-wasm';
-import topLevelAwait from 'vite-plugin-top-level-await';
+
 // import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 const repoRoot = resolve(fileURLToPath(new URL('..', import.meta.url)));
@@ -57,11 +57,6 @@ export default defineConfig({
     react(),
     // Configure WASM plugin with more options
     wasm(),
-    topLevelAwait({
-      // Be more permissive with top-level await
-      promiseExportName: '__tla',
-      promiseImportName: (i) => `__tla_${i}`,
-    }),
     // Custom resolver for handling problematic modules
     {
       name: 'wasm-module-resolver',

@@ -66,7 +66,7 @@ export const inMemoryPrivateStateProvider = <PSI extends PrivateStateId, PS = un
       Array.from(getScopedStates(address).entries()).map(([stateId, value]) => [stateId, encode(value)]),
     );
 
-  const exportSigningKeyPayload = (): Record<ContractAddress, SigningKey> => Object.fromEntries(signingKeys.entries());
+  const exportSigningKeyPayload = (): Record<ContractAddress, string> => Object.fromEntries(signingKeys.entries());
 
   return {
     setContractAddress(address: ContractAddress): void {
@@ -206,7 +206,7 @@ export const inMemoryPrivateStateProvider = <PSI extends PrivateStateId, PS = un
       options?: ImportSigningKeysOptions,
     ): Promise<ImportSigningKeysResult> {
       const conflictStrategy = options?.conflictStrategy ?? 'error';
-      const payload = decode<{ keys?: Record<ContractAddress, SigningKey> }>(exportData.encryptedPayload);
+      const payload = decode<{ keys?: Record<ContractAddress, string> }>(exportData.encryptedPayload);
       const keys = payload.keys ?? {};
       let imported = 0;
       let skipped = 0;
@@ -226,7 +226,7 @@ export const inMemoryPrivateStateProvider = <PSI extends PrivateStateId, PS = un
         } else {
           imported += 1;
         }
-        signingKeys.set(address, signingKey);
+        signingKeys.set(address, (signingKey as any) as string);
       }
 
       return Promise.resolve({ imported, skipped, overwritten });
